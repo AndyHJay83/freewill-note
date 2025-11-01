@@ -988,19 +988,6 @@ A wallet
 A watch</textarea>
             </div>
             <div class="settings-group">
-                <div class="settings-label">Input Method</div>
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-                    <label style="display: flex; align-items: center; gap: 10px;">
-                        <input type="radio" name="freewill-input-method" value="columns" checked>
-                        <span>Columns</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 10px;">
-                        <input type="radio" name="freewill-input-method" value="direction">
-                        <span>Direction</span>
-                    </label>
-                </div>
-            </div>
-            <div class="settings-group">
                 <div class="settings-label">Columns</div>
                 <input type="number" class="settings-input" id="freewill-columns" value="3" min="2" max="10">
             </div>
@@ -1982,16 +1969,7 @@ A watch</textarea>
         
         // Load Free Will settings into the form
         function loadFreeWillSettings() {
-            const savedInputMethod = localStorage.getItem('freewill-input-method') || 'columns';
             const savedColumns = localStorage.getItem('freewill-columns') || '3';
-            
-            // Set the radio button
-            const radioButtons = document.querySelectorAll('input[name="freewill-input-method"]');
-            radioButtons.forEach(radio => {
-                if (radio.value === savedInputMethod) {
-                    radio.checked = true;
-                }
-            });
             
             // Set the columns input
             document.getElementById('freewill-columns').value = savedColumns;
@@ -2119,8 +2097,7 @@ A watch</textarea>
             const secondMessage = localStorage.getItem('freewill-second') || 'Perfect. And the last item, keep in your hands.';
             const finalTemplate = localStorage.getItem('freewill-final') || 'If I have influenced you correctly, I should be holding the [FIRST], you should be holding the [LAST], and the [SECOND] should be in your pocket!';
             
-            // Load saved input method and columns
-            const inputMethod = localStorage.getItem('freewill-input-method') || 'columns';
+            // Load saved columns
             const columns = parseInt(localStorage.getItem('freewill-columns')) || 3;
 
             // Initial content with spacing
@@ -2149,15 +2126,6 @@ A watch</textarea>
 
                     // Generate new text based on scroll count
                     if (scrollCount === 1) {
-                        // Update time display as visual indicator for first input
-                        let timeDisplay = '22 March 2025 at 11:35'; // Default
-                        if (inputMethod === 'direction') {
-                            if (itemIndex === 0) timeDisplay = '22 March 2025 at 11:15'; // ONE
-                            else if (itemIndex === 1) timeDisplay = '22 March 2025 at 11:25'; // TWO
-                            else if (itemIndex === 2) timeDisplay = '22 March 2025 at 11:35'; // THREE
-                        }
-                        document.querySelector('.creation-time').textContent = timeDisplay;
-                        
                         textOverlay.innerHTML += firstMessage + spacer;
                     } else if (scrollCount === 2) {
                         const unscrolledItem = items.find(item => !selectedItems.includes(item));
@@ -2171,148 +2139,23 @@ A watch</textarea>
                 }
             }
 
-            // For first input: use Direction or Columns based on settings
-            // For second input: always use Columns
-            if (inputMethod === 'direction' && scrollCount === 0) {
-                // Direction input method for first swipe
-                let faceDownTimer = null;
-                let phoneFaceDown = false;
-                let waitingForTurnUp = false;
-                let turnTimer = null;
-                let lastBeta = null;
-                let hasTapped = false;
-                let faceDownTime = null;
-                
-                // Request permission for device orientation (iOS 13+)
-                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission().then(response => {
-                        if (response === 'granted') {
-                            console.log('Device orientation permission granted');
-                            // Permission granted, add the event listener
-                            window.addEventListener('deviceorientation', orientationHandler);
-                        } else {
-                            console.log('Device orientation permission denied');
-                        }
-                    }).catch(err => {
-                        console.error('Error requesting device orientation permission:', err);
-                    });
-                } else {
-                    // Non-iOS device or older iOS, add listener directly
-                    window.addEventListener('deviceorientation', orientationHandler);
+            // Columns input method
+            textOverlay.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX;
+            });
+
+            textOverlay.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const deltaY = touch.clientY - startY;
+                const deltaX = touch.clientX - startX;
+
+                // Only trigger if it's a vertical swipe (up)
+                if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
+                    const column = getColumnFromX(touch.clientX);
+                    addItemToSelection(column);
                 }
-                
-                function orientationHandler(event) {
-                    const beta = event.beta; // Rotation around x-axis (-180 to 180)
-                    const gamma = event.gamma; // Rotation around y-axis (-90 to 90)
-                    const alpha = event.alpha; // Rotation around z-axis (0-360, compass)
-                    
-                    console.log(`Beta: ${beta.toFixed(1)}, Gamma: ${gamma.toFixed(1)}, Alpha: ${alpha.toFixed(1)}`);
-                    
-                    // Detect face down: beta close to 180 or -180, gamma close to 0
-                    const isFaceDown = (Math.abs(beta) > 140 && Math.abs(gamma) < 30);
-                    
-                    // Phone is face down - start 1 second timer
-                    if (isFaceDown && !phoneFaceDown && faceDownTimer === null) {
-                        faceDownTimer = setTimeout(() => {
-                            phoneFaceDown = true;
-                            waitingForTurnUp = true;
-                            faceDownTime = Date.now();
-                            console.log('Phone face down for 1 second - waiting for turn up');
-                        }, 1000);
-                    }
-                    
-                    // Phone moved away from face down - cancel timer if we haven't confirmed yet
-                    if (!isFaceDown && faceDownTimer !== null && !phoneFaceDown) {
-                        clearTimeout(faceDownTimer);
-                        faceDownTimer = null;
-                        console.log('Phone moved before 1 second - cancelled');
-                    }
-                    
-                    // Detect if phone is being turned back up
-                    if (phoneFaceDown && !isFaceDown && waitingForTurnUp) {
-                        phoneFaceDown = false;
-                        waitingForTurnUp = false;
-                        const turnDirection = gamma > 20 ? 'right-to-left' : 'left-to-right';
-                        console.log(`Phone turned up: ${turnDirection}`);
-                        
-                        // Start 5 second timer when phone starts turning
-                        hasTapped = false;
-                        turnTimer = setTimeout(() => {
-                            // Timer ended without tap, input based on direction
-                            if (!hasTapped) {
-                                if (turnDirection === 'left-to-right') {
-                                    console.log('No tap, left-to-right - Input ONE');
-                                    addItemToSelection(0);
-                                } else {
-                                    console.log('No tap, right-to-left - Input TWO');
-                                    addItemToSelection(1);
-                                }
-                            }
-                            turnTimer = null;
-                        }, 5000);
-                    }
-                    
-                    lastBeta = beta;
-                }
-                
-                // Listen for tap on screen (for THREE input)
-                const handleTouchStart = (e) => {
-                    // Check if timer is active (for THREE input)
-                    if (turnTimer !== null && scrollCount === 0) {
-                        hasTapped = true;
-                        clearTimeout(turnTimer);
-                        turnTimer = null;
-                        console.log('Tap detected - Input THREE');
-                        addItemToSelection(2);
-                        return;
-                    }
-                    
-                    // Track for swipes after first input
-                    if (scrollCount > 0) {
-                        startY = e.touches[0].clientY;
-                        startX = e.touches[0].clientX;
-                    }
-                };
-                
-                textOverlay.addEventListener('touchstart', handleTouchStart);
-                
-                // Add touchmove for second swipe (columns method)
-                textOverlay.addEventListener('touchmove', (e) => {
-                    if (scrollCount === 0) {
-                        // First swipe uses direction method
-                        return;
-                    }
-                    
-                    const touch = e.touches[0];
-                    const deltaY = touch.clientY - startY;
-                    const deltaX = touch.clientX - startX;
-
-                    // Only trigger if it's a vertical swipe (up)
-                    if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
-                        const column = getColumnFromX(touch.clientX);
-                        addItemToSelection(column);
-                    }
-                });
-                
-            } else {
-                // Columns input method for first swipe
-                textOverlay.addEventListener('touchstart', (e) => {
-                    startY = e.touches[0].clientY;
-                    startX = e.touches[0].clientX;
-                });
-
-                textOverlay.addEventListener('touchmove', (e) => {
-                    const touch = e.touches[0];
-                    const deltaY = touch.clientY - startY;
-                    const deltaX = touch.clientX - startX;
-
-                    // Only trigger if it's a vertical swipe (up)
-                    if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
-                        const column = getColumnFromX(touch.clientX);
-                        addItemToSelection(column);
-                    }
-                });
-            }
+            });
 
             // Track scroll position
             textOverlay.addEventListener('scroll', () => {
@@ -2328,15 +2171,12 @@ A watch</textarea>
             const firstMessage = document.getElementById('freewill-first').value;
             const secondMessage = document.getElementById('freewill-second').value;
             const finalTemplate = document.getElementById('freewill-final').value;
-            
-            const selectedInputMethod = document.querySelector('input[name="freewill-input-method"]:checked').value;
             const columns = parseInt(document.getElementById('freewill-columns').value);
 
             localStorage.setItem('freewill-items', JSON.stringify(items));
             localStorage.setItem('freewill-first', firstMessage);
             localStorage.setItem('freewill-second', secondMessage);
             localStorage.setItem('freewill-final', finalTemplate);
-            localStorage.setItem('freewill-input-method', selectedInputMethod);
             localStorage.setItem('freewill-columns', columns);
 
             // Show feedback
