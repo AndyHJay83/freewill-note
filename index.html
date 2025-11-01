@@ -236,6 +236,11 @@
             object-fit: contain;
         }
 
+        .toolbar-button.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
         .home-indicator {
             width: 135px;
             height: 5px;
@@ -895,16 +900,16 @@
         <canvas id="drawing-canvas"></canvas>
 
         <div class="toolbar">
-            <button class="toolbar-button" id="checklist-btn">
+            <button class="toolbar-button disabled" id="checklist-btn">
                 <img src="./images/toolbar-checklist.PNG" alt="Checklist">
                 </button>
-            <button class="toolbar-button" id="paperclip-btn">
+            <button class="toolbar-button disabled" id="paperclip-btn">
                 <img src="./images/toolbar-paperclip.PNG" alt="Attach">
                 </button>
-            <button class="toolbar-button" id="pen-btn">
+            <button class="toolbar-button disabled" id="pen-btn">
                 <img src="./images/toolbar-pen.PNG" alt="Draw">
                 </button>
-            <button class="toolbar-button" id="writing-btn">
+            <button class="toolbar-button disabled" id="writing-btn">
                 <img src="./images/toolbar-writing.PNG" alt="Writing Tools">
                 </button>
             <button class="toolbar-button" id="new-btn">
@@ -1147,8 +1152,8 @@ A watch</textarea>
                 }
             });
 
-            // Initialize with Order effect
-            switchToEffect('order');
+            // Initialize with Free Will effect
+            switchToEffect('new');
         });
 
         // Settings Panel Functionality
@@ -1162,7 +1167,7 @@ A watch</textarea>
         const drawingCanvas = document.getElementById('drawing-canvas');
         const notesTitle = document.querySelector('.notes-title');
 
-        let currentEffect = 'order';
+        let currentEffect = 'new';
 
         // Add these at the top with other variables
         let currentDrawingData = null;
@@ -2062,8 +2067,8 @@ A watch</textarea>
             }, delay);
         }
 
-        // Initialize with Order effect
-        switchToEffect('order');
+        // Initialize with Free Will effect
+        switchToEffect('new');
 
         // Free Will functionality
         function initializeFreeWill() {
