@@ -988,6 +988,23 @@ A wallet
 A watch</textarea>
             </div>
             <div class="settings-group">
+                <div class="settings-label">Input Method</div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="radio" name="freewill-input-method" value="columns" checked>
+                        <span>Columns</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="radio" name="freewill-input-method" value="direction">
+                        <span>Direction</span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-label">Columns</div>
+                <input type="number" class="settings-input" id="freewill-columns" value="3" min="2" max="10">
+            </div>
+            <div class="settings-group">
                 <div class="settings-label">First Message</div>
                 <textarea class="settings-input settings-textarea" id="freewill-first">Great. Now pick up another item and put it in your pocket.</textarea>
             </div>
@@ -1960,7 +1977,25 @@ A watch</textarea>
         // Settings Panel Functionality
         settingsButton.addEventListener('click', () => {
             settingsPanel.classList.add('active');
+            loadFreeWillSettings();
         });
+        
+        // Load Free Will settings into the form
+        function loadFreeWillSettings() {
+            const savedInputMethod = localStorage.getItem('freewill-input-method') || 'columns';
+            const savedColumns = localStorage.getItem('freewill-columns') || '3';
+            
+            // Set the radio button
+            const radioButtons = document.querySelectorAll('input[name="freewill-input-method"]');
+            radioButtons.forEach(radio => {
+                if (radio.value === savedInputMethod) {
+                    radio.checked = true;
+                }
+            });
+            
+            // Set the columns input
+            document.getElementById('freewill-columns').value = savedColumns;
+        }
 
         closeSettings.addEventListener('click', () => {
             settingsPanel.classList.remove('active');
@@ -2083,12 +2118,16 @@ A watch</textarea>
             const firstMessage = localStorage.getItem('freewill-first') || 'Great. Now pick up another item and put it in your pocket.';
             const secondMessage = localStorage.getItem('freewill-second') || 'Perfect. And the last item, keep in your hands.';
             const finalTemplate = localStorage.getItem('freewill-final') || 'If I have influenced you correctly, I should be holding the [FIRST], you should be holding the [LAST], and the [SECOND] should be in your pocket!';
+            
+            // Load saved input method and columns
+            const inputMethod = localStorage.getItem('freewill-input-method') || 'columns';
+            const columns = parseInt(localStorage.getItem('freewill-columns')) || 3;
 
             // Initial content with spacing
             const spacer = '<br>'.repeat(100);
             textOverlay.innerHTML = `<h1 class="notes-title">Free Will</h1>
                 <br><br>
-                Infront of you, you should have 3 items:
+                Infront of you, you should have ${items.length} items:
                 <br><br>
                 ${items.join('<br>')}
                 <br><br>
@@ -2096,7 +2135,7 @@ A watch</textarea>
 
             function getColumnFromX(x) {
                 const width = window.innerWidth;
-                const columnWidth = width / 3;
+                const columnWidth = width / columns;
                 return Math.floor(x / columnWidth);
             }
 
@@ -2156,11 +2195,16 @@ A watch</textarea>
             const firstMessage = document.getElementById('freewill-first').value;
             const secondMessage = document.getElementById('freewill-second').value;
             const finalTemplate = document.getElementById('freewill-final').value;
+            
+            const selectedInputMethod = document.querySelector('input[name="freewill-input-method"]:checked').value;
+            const columns = parseInt(document.getElementById('freewill-columns').value);
 
             localStorage.setItem('freewill-items', JSON.stringify(items));
             localStorage.setItem('freewill-first', firstMessage);
             localStorage.setItem('freewill-second', secondMessage);
             localStorage.setItem('freewill-final', finalTemplate);
+            localStorage.setItem('freewill-input-method', selectedInputMethod);
+            localStorage.setItem('freewill-columns', columns);
 
             // Show feedback
             const saveButton = document.getElementById('save-freewill');
