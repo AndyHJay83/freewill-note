@@ -2091,6 +2091,7 @@ A watch</textarea>
             let startY = 0;
             let startX = 0;
             let lastScrollTop = 0;
+            let swipeInProgress = false;
 
             // Load saved messages from localStorage
             const firstMessage = localStorage.getItem('freewill-first') || 'Great. Now pick up another item and put it in your pocket.';
@@ -2143,15 +2144,20 @@ A watch</textarea>
             textOverlay.addEventListener('touchstart', (e) => {
                 startY = e.touches[0].clientY;
                 startX = e.touches[0].clientX;
+                swipeInProgress = false; // Reset flag when touch starts
             });
 
             textOverlay.addEventListener('touchmove', (e) => {
+                // Prevent multiple triggers during a single swipe
+                if (swipeInProgress) return;
+                
                 const touch = e.touches[0];
                 const deltaY = touch.clientY - startY;
                 const deltaX = touch.clientX - startX;
 
                 // Only trigger if it's a vertical swipe (up)
                 if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
+                    swipeInProgress = true; // Set flag to prevent duplicate triggers
                     const column = getColumnFromX(touch.clientX);
                     addItemToSelection(column);
                 }
@@ -2807,6 +2813,7 @@ Pick up one and give it to me.`;
             let startY = 0;
             let startX = 0;
             let lastScrollTop = 0;
+            let swipeInProgress = false;
 
             // Load saved messages from localStorage
             const firstMessage = localStorage.getItem('freewill-first') || 'Great. Now pick up another item and put it in your pocket.';
@@ -2870,15 +2877,20 @@ Pick up one and give it to me.${spacer}`;
             noteContent.addEventListener('touchstart', (e) => {
                 startY = e.touches[0].clientY;
                 startX = e.touches[0].clientX;
+                swipeInProgress = false; // Reset flag when touch starts
             });
 
             noteContent.addEventListener('touchmove', (e) => {
+                // Prevent multiple triggers during a single swipe
+                if (swipeInProgress) return;
+                
                 const touch = e.touches[0];
                 const deltaY = touch.clientY - startY;
                 const deltaX = touch.clientX - startX;
 
                 // Only trigger if it's a vertical swipe (up)
                 if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
+                    swipeInProgress = true; // Set flag to prevent duplicate triggers
                     handleSwipe(e);
                 }
             });
