@@ -845,13 +845,6 @@
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        /* Update Android UI note content area */
-        body.android-mode .note-content {
-            position: relative;
-            flex: 1;
-            overflow: hidden;
-        }
-
         body.android-mode .settings-header {
             background-color: #202124;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -920,11 +913,11 @@
 
     <div id="android-ui" style="display: none;">
         <div class="header">
-            <img src="assets/android/back-arrow.svg" alt="Back" class="back-arrow">
+            <img src="android/back-arrow.svg" alt="Back" class="back-arrow">
             <div class="header-actions">
-                <img src="assets/android/pin.svg" alt="Pin" class="header-icon">
-                <img src="assets/android/bell.svg" alt="Reminder" class="header-icon">
-                <img src="assets/android/archive.svg" alt="Archive" class="header-icon">
+                <img src="android/pin.svg" alt="Pin" class="header-icon">
+                <img src="android/bell.svg" alt="Reminder" class="header-icon">
+                <img src="android/archive.svg" alt="Archive" class="header-icon">
             </div>
         </div>
 
@@ -935,11 +928,11 @@
 
         <div class="footer">
             <div class="footer-left">
-                <img src="assets/android/add.svg" alt="Add" class="footer-icon">
-                <img src="assets/android/palette.svg" alt="Color" class="footer-icon">
+                <img src="android/add.svg" alt="Add" class="footer-icon">
+                <img src="android/palette.svg" alt="Color" class="footer-icon">
             </div>
             <div class="footer-center">Edited 15:41</div>
-            <img src="assets/android/more.svg" alt="More" class="footer-icon">
+            <img src="android/more.svg" alt="More" class="footer-icon">
         </div>
     </div>
 
@@ -2925,9 +2918,9 @@ Pick up one and give it to me.`;
             
             // Remove old event listeners if they exist
             if (window.androidFreewillTouchStart) {
-                noteContent.removeEventListener('touchstart', window.androidFreewillTouchStart);
-                noteContent.removeEventListener('touchmove', window.androidFreewillTouchMove);
-                noteContent.removeEventListener('scroll', window.androidFreewillScroll);
+                noteBody.removeEventListener('touchstart', window.androidFreewillTouchStart);
+                noteBody.removeEventListener('touchmove', window.androidFreewillTouchMove);
+                noteBody.removeEventListener('scroll', window.androidFreewillScroll);
             }
             
             const items = JSON.parse(localStorage.getItem('freewill-items')) || ['A pen', 'A wallet', 'A watch'];
@@ -2992,7 +2985,7 @@ Pick up one and give it to me.${spacer}`;
 
             // Create named functions for event listeners
             window.androidFreewillScroll = () => {
-                const currentScrollTop = noteContent.scrollTop;
+                const currentScrollTop = noteBody.scrollTop;
                 const scrollDelta = currentScrollTop - lastScrollTop;
                 lastScrollTop = currentScrollTop;
             };
@@ -3018,15 +3011,11 @@ Pick up one and give it to me.${spacer}`;
                 }
             };
             
-            noteContent.addEventListener('touchstart', window.androidFreewillTouchStart);
-            noteContent.addEventListener('touchmove', window.androidFreewillTouchMove);
-            noteContent.addEventListener('scroll', window.androidFreewillScroll);
+            noteBody.addEventListener('touchstart', window.androidFreewillTouchStart);
+            noteBody.addEventListener('touchmove', window.androidFreewillTouchMove);
+            noteBody.addEventListener('scroll', window.androidFreewillScroll);
 
-            // Enable scrolling on note content
-            noteContent.style.overflowY = 'auto';
-            noteContent.style.WebkitOverflowScrolling = 'touch';
-            noteContent.style.height = '100%';
-            noteContent.style.position = 'relative';
+            // Enable scrolling on note body (not note content container)
             noteBody.style.whiteSpace = 'pre-wrap';
             noteBody.style.overflowY = 'auto';
             noteBody.style.WebkitOverflowScrolling = 'touch';
