@@ -2192,28 +2192,40 @@ A watch</textarea>
                         phoneFaceDown = false;
                         waitingForTurnUp = false;
                         
+                        // Start 5 second timer when phone starts turning
+                        hasTapped = false;
+                        turnTimer = setTimeout(() => {
+                            // Timer ended without tap, input based on direction
+                            if (!hasTapped) {
+                                if (lastBeta !== null) {
+                                    const betaChange = beta - lastBeta;
+                                    
+                                    // Left over right
+                                    if (gamma < -20 && betaChange > 30) {
+                                        console.log('No tap, left over right - Input ONE');
+                                        addItemToSelection(0);
+                                    }
+                                    // Right over left
+                                    else if (gamma > 20 && betaChange > 30) {
+                                        console.log('No tap, right over left - Input TWO');
+                                        addItemToSelection(1);
+                                    }
+                                }
+                            }
+                            turnTimer = null;
+                        }, 5000);
+                        
                         // Determine which way phone was turned
                         if (lastBeta !== null) {
                             const betaChange = beta - lastBeta;
                             
-                            // Left over right (positive gamma + rotating forward)
+                            // Left over right
                             if (gamma < -20 && betaChange > 30) {
-                                console.log('Left over right - Input ONE');
-                                addItemToSelection(0);
+                                console.log('Left over right - waiting for tap or timer');
                             }
-                            // Right over left (negative gamma + rotating forward)
+                            // Right over left
                             else if (gamma > 20 && betaChange > 30) {
-                                console.log('Right over left - Input TWO or THREE');
-                                
-                                // Start 5 second timer for tap detection
-                                hasTapped = false;
-                                turnTimer = setTimeout(() => {
-                                    if (!hasTapped) {
-                                        console.log('No tap - Input TWO');
-                                        addItemToSelection(1);
-                                    }
-                                    turnTimer = null;
-                                }, 5000);
+                                console.log('Right over left - waiting for tap or timer');
                             }
                         }
                     }
