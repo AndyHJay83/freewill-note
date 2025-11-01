@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" id="status-bar-style-meta">
     <meta name="theme-color" content="#202124" id="theme-color-meta">
     <meta name="apple-mobile-web-app-title" content="Nötes">
     
@@ -2763,6 +2763,13 @@ A watch</textarea>
                     themeColorMeta.content = isIOS ? '#000000' : '#202124';
                 }
                 
+                // Update iOS status bar style for Android mode
+                const statusBarStyleMeta = document.getElementById('status-bar-style-meta');
+                if (statusBarStyleMeta) {
+                    // For Android mode, use black-translucent so grey background shows through
+                    statusBarStyleMeta.content = isIOS ? 'black' : 'black-translucent';
+                }
+                
                 // Save preference
                 localStorage.setItem('platform', isIOS ? 'ios' : 'android');
                 
@@ -3033,6 +3040,12 @@ Pick up one and give it to me.${spacer}`;
             const themeColorMeta = document.getElementById('theme-color-meta');
             if (themeColorMeta) {
                 themeColorMeta.content = (savedPlatform === 'android') ? '#202124' : '#000000';
+            }
+            
+            // Set initial iOS status bar style based on saved platform
+            const statusBarStyleMeta = document.getElementById('status-bar-style-meta');
+            if (statusBarStyleMeta) {
+                statusBarStyleMeta.content = (savedPlatform === 'android') ? 'black-translucent' : 'black';
             }
             
             if (savedPlatform === 'android' && platformToggle) {
