@@ -2149,6 +2149,15 @@ A watch</textarea>
 
                     // Generate new text based on scroll count
                     if (scrollCount === 1) {
+                        // Update time display as visual indicator for first input
+                        let timeDisplay = '22 March 2025 at 11:35'; // Default
+                        if (inputMethod === 'direction') {
+                            if (itemIndex === 0) timeDisplay = '22 March 2025 at 11:15'; // ONE
+                            else if (itemIndex === 1) timeDisplay = '22 March 2025 at 11:25'; // TWO
+                            else if (itemIndex === 2) timeDisplay = '22 March 2025 at 11:35'; // THREE
+                        }
+                        document.querySelector('.creation-time').textContent = timeDisplay;
+                        
                         textOverlay.innerHTML += firstMessage + spacer;
                     } else if (scrollCount === 2) {
                         const unscrolledItem = items.find(item => !selectedItems.includes(item));
