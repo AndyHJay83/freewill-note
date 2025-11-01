@@ -2139,13 +2139,10 @@ A watch</textarea>
                 return Math.floor(x / columnWidth);
             }
 
-            function handleSwipe(e) {
+            function addItemToSelection(itemIndex) {
                 if (scrollCount >= 2) return;
-
-                const touch = e.touches[0];
-                const column = getColumnFromX(touch.clientX);
-                const item = items[column];
-
+                const item = items[itemIndex];
+                
                 if (!selectedItems.includes(item)) {
                     selectedItems.push(item);
                     scrollCount++;
@@ -2165,27 +2162,129 @@ A watch</textarea>
                 }
             }
 
+            // For first input: use Direction or Columns based on settings
+            // For second input: always use Columns
+            if (inputMethod === 'direction' && scrollCount === 0) {
+                // Direction input method for first swipe
+                let phoneFaceDown = false;
+                let waitingForTurnUp = false;
+                let turnTimer = null;
+                let lastBeta = null;
+                let hasTapped = false;
+                
+                // Listen for device orientation
+                window.addEventListener('deviceorientation', (event) => {
+                    const beta = event.beta; // Rotation around x-axis (-180 to 180)
+                    const gamma = event.gamma; // Rotation around y-axis (-90 to 90)
+                    
+                    // Detect face down: beta close to 180 or -180, gamma close to 0
+                    const isFaceDown = (Math.abs(beta) > 140 && Math.abs(gamma) < 30);
+                    
+                    if (isFaceDown && !phoneFaceDown) {
+                        // Phone just turned face down
+                        phoneFaceDown = true;
+                        waitingForTurnUp = true;
+                        console.log('Phone face down - waiting for turn up');
+                    }
+                    
+                    // Detect if phone is being turned back up
+                    if (phoneFaceDown && !isFaceDown && waitingForTurnUp) {
+                        phoneFaceDown = false;
+                        waitingForTurnUp = false;
+                        
+                        // Determine which way phone was turned
+                        if (lastBeta !== null) {
+                            const betaChange = beta - lastBeta;
+                            
+                            // Left over right (positive gamma + rotating forward)
+                            if (gamma < -20 && betaChange > 30) {
+                                console.log('Left over right - Input ONE');
+                                addItemToSelection(0);
+                            }
+                            // Right over left (negative gamma + rotating forward)
+                            else if (gamma > 20 && betaChange > 30) {
+                                console.log('Right over left - Input TWO or THREE');
+                                
+                                // Start 5 second timer for tap detection
+                                hasTapped = false;
+                                turnTimer = setTimeout(() => {
+                                    if (!hasTapped) {
+                                        console.log('No tap - Input TWO');
+                                        addItemToSelection(1);
+                                    }
+                                    turnTimer = null;
+                                }, 5000);
+                            }
+                        }
+                    }
+                    
+                    lastBeta = beta;
+                });
+                
+                // Listen for tap on screen (for THREE input)
+                const handleTouchStart = (e) => {
+                    // Check if timer is active (for THREE input)
+                    if (turnTimer !== null && scrollCount === 0) {
+                        hasTapped = true;
+                        clearTimeout(turnTimer);
+                        turnTimer = null;
+                        console.log('Tap detected - Input THREE');
+                        addItemToSelection(2);
+                        return;
+                    }
+                    
+                    // Track for swipes after first input
+                    if (scrollCount > 0) {
+                        startY = e.touches[0].clientY;
+                        startX = e.touches[0].clientX;
+                    }
+                };
+                
+                textOverlay.addEventListener('touchstart', handleTouchStart);
+                
+                // Add touchmove for second swipe (columns method)
+                textOverlay.addEventListener('touchmove', (e) => {
+                    if (scrollCount === 0) {
+                        // First swipe uses direction method
+                        return;
+                    }
+                    
+                    const touch = e.touches[0];
+                    const deltaY = touch.clientY - startY;
+                    const deltaX = touch.clientX - startX;
+
+                    // Only trigger if it's a vertical swipe (up)
+                    if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
+                        const column = getColumnFromX(touch.clientX);
+                        addItemToSelection(column);
+                    }
+                });
+                
+            } else {
+                // Columns input method for first swipe
+                textOverlay.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                    startX = e.touches[0].clientX;
+                });
+
+                textOverlay.addEventListener('touchmove', (e) => {
+                    const touch = e.touches[0];
+                    const deltaY = touch.clientY - startY;
+                    const deltaX = touch.clientX - startX;
+
+                    // Only trigger if it's a vertical swipe (up)
+                    if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
+                        const column = getColumnFromX(touch.clientX);
+                        addItemToSelection(column);
+                    }
+                });
+            }
+
             // Track scroll position
             textOverlay.addEventListener('scroll', () => {
                 const currentScrollTop = textOverlay.scrollTop;
                 const scrollDelta = currentScrollTop - lastScrollTop;
                 lastScrollTop = currentScrollTop;
-            });
-
-            textOverlay.addEventListener('touchstart', (e) => {
-                startY = e.touches[0].clientY;
-                startX = e.touches[0].clientX;
-            });
-
-            textOverlay.addEventListener('touchmove', (e) => {
-                const touch = e.touches[0];
-                const deltaY = touch.clientY - startY;
-                const deltaX = touch.clientX - startX;
-
-                // Only trigger if it's a vertical swipe (up)
-                if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
-                    handleSwipe(e);
-                }
             });
         }
 
