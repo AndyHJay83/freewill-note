@@ -1006,6 +1006,27 @@ A watch</textarea>
             <button class="save-settings" id="save-freewill">Save Changes</button>
         </div>
 
+        <!-- App Settings -->
+        <div class="effect-settings" id="app-settings">
+            <div class="settings-group">
+                <div class="settings-label">Appearance</div>
+                <div class="toggle-container">
+                    <span style="color: white; font-size: 17px;">Dark Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="app-theme-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-container" style="border-bottom: none;">
+                    <span style="color: white; font-size: 17px;">iOS Style</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="app-platform-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <!-- Other Effect Settings (Coming Soon) -->
         <div class="effect-settings" id="other-settings">
             <div class="settings-group">
@@ -1973,6 +1994,21 @@ A watch</textarea>
             
             // Set the columns input
             document.getElementById('freewill-columns').value = savedColumns;
+            
+            // Load app settings
+            const savedTheme = localStorage.getItem('theme');
+            const savedPlatform = localStorage.getItem('platform');
+            
+            const appThemeToggle = document.getElementById('app-theme-toggle');
+            const appPlatformToggle = document.getElementById('app-platform-toggle');
+            
+            if (appThemeToggle) {
+                appThemeToggle.checked = (savedTheme !== 'light');
+            }
+            
+            if (appPlatformToggle) {
+                appPlatformToggle.checked = (savedPlatform !== 'android');
+            }
         }
 
         closeSettings.addEventListener('click', () => {
@@ -2326,6 +2362,7 @@ A watch</textarea>
                     
                 case 'new':
                     document.getElementById('freewill-settings').style.display = 'block';
+                    document.getElementById('app-settings').style.display = 'block';
                     notesTitle.textContent = 'Free Will';
                     textOverlay.innerHTML = `<h1 class="notes-title">Free Will</h1>
                         <br><br>
@@ -2698,6 +2735,70 @@ A watch</textarea>
                 initializeAndroidHandlers();
             }
         });
+
+        // App settings toggles (in main settings panel)
+        const appThemeToggle = document.getElementById('app-theme-toggle');
+        const appPlatformToggle = document.getElementById('app-platform-toggle');
+        
+        if (appThemeToggle) {
+            appThemeToggle.addEventListener('change', (e) => {
+                const isDark = e.target.checked;
+                document.body.classList.toggle('light-mode', !isDark);
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                // Also update the writing-settings toggle if it exists
+                const writingThemeToggle = document.getElementById('theme-toggle');
+                if (writingThemeToggle) {
+                    writingThemeToggle.checked = isDark;
+                }
+            });
+        }
+
+        if (appPlatformToggle) {
+            appPlatformToggle.addEventListener('change', (e) => {
+                const isIOS = e.target.checked;
+                
+                // Toggle Android mode class on body
+                document.body.classList.toggle('android-mode', !isIOS);
+                
+                // Update theme-color meta tag
+                const themeColorMeta = document.getElementById('theme-color-meta');
+                if (themeColorMeta) {
+                    themeColorMeta.content = isIOS ? '#000000' : '#202124';
+                }
+                
+                // Save preference
+                localStorage.setItem('platform', isIOS ? 'ios' : 'android');
+                
+                if (isIOS) {
+                    // Show iOS UI
+                    document.querySelector('#app').style.display = 'flex';
+                    document.querySelector('#android-ui').style.display = 'none';
+                } else {
+                    // Show Android UI
+                    document.querySelector('#app').style.display = 'none';
+                    document.querySelector('#android-ui').style.display = 'flex';
+                    
+                    // Copy current note content to Android UI
+                    const iosTitle = document.querySelector('.notes-title').textContent;
+                    const iosContent = document.querySelector('#text-overlay').textContent.replace(iosTitle, '').trim();
+                    
+                    const androidTitle = document.querySelector('#android-ui .note-title');
+                    const androidBody = document.querySelector('#android-ui .note-body');
+                    
+                    if (androidTitle) androidTitle.value = iosTitle;
+                    if (androidBody) androidBody.value = iosContent;
+
+                    // Initialize Android UI handlers
+                    initializeAndroidHandlers();
+                }
+                
+                // Also update the writing-settings toggle if it exists
+                const writingPlatformToggle = document.getElementById('platform-toggle');
+                if (writingPlatformToggle) {
+                    writingPlatformToggle.checked = isIOS;
+                }
+            });
+        }
 
         // Function to initialize Android UI handlers
         function initializeAndroidHandlers() {
