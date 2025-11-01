@@ -963,6 +963,27 @@
             <button class="close-settings" id="close-settings">Done</button>
         </div>
         
+        <!-- App Settings -->
+        <div class="effect-settings" id="app-settings">
+            <div class="settings-group">
+                <div class="settings-label">Appearance</div>
+                <div class="toggle-container">
+                    <span style="color: white; font-size: 17px;">Dark Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="app-theme-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-container" style="border-bottom: none;">
+                    <span style="color: white; font-size: 17px;">iOS Style</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="app-platform-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <!-- Order Effect Settings -->
         <div class="effect-settings" id="order-settings">
             <div class="settings-group">
@@ -1004,27 +1025,6 @@ A watch</textarea>
                 <textarea class="settings-input settings-textarea" id="freewill-final">If I have influenced you correctly, I should be holding the [FIRST], you should be holding the [LAST], and the [SECOND] should be in your pocket!</textarea>
             </div>
             <button class="save-settings" id="save-freewill">Save Changes</button>
-        </div>
-
-        <!-- App Settings -->
-        <div class="effect-settings" id="app-settings">
-            <div class="settings-group">
-                <div class="settings-label">Appearance</div>
-                <div class="toggle-container">
-                    <span style="color: white; font-size: 17px;">Dark Mode</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="app-theme-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-container" style="border-bottom: none;">
-                    <span style="color: white; font-size: 17px;">iOS Style</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="app-platform-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
         </div>
 
         <!-- Other Effect Settings (Coming Soon) -->
@@ -1986,6 +1986,8 @@ A watch</textarea>
         settingsButton.addEventListener('click', () => {
             settingsPanel.classList.add('active');
             loadFreeWillSettings();
+            // Make sure app-settings is visible
+            document.getElementById('app-settings').style.display = 'block';
         });
         
         // Load Free Will settings into the form
@@ -2291,9 +2293,11 @@ A watch</textarea>
             console.log('switchToEffect called with:', effect); // Debug log
             currentEffect = effect;
             
-            // Hide all settings panels first
+            // Hide all settings panels first (except app-settings which is always visible)
             document.querySelectorAll('.effect-settings').forEach(panel => {
-                panel.style.display = 'none';
+                if (panel.id !== 'app-settings') {
+                    panel.style.display = 'none';
+                }
             });
 
             // Reset UI elements
@@ -2362,7 +2366,6 @@ A watch</textarea>
                     
                 case 'new':
                     document.getElementById('freewill-settings').style.display = 'block';
-                    document.getElementById('app-settings').style.display = 'block';
                     notesTitle.textContent = 'Free Will';
                     textOverlay.innerHTML = `<h1 class="notes-title">Free Will</h1>
                         <br><br>
