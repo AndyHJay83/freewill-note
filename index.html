@@ -2183,8 +2183,25 @@ A watch</textarea>
                 let hasTapped = false;
                 let faceDownTime = null;
                 
-                // Listen for device orientation
-                window.addEventListener('deviceorientation', (event) => {
+                // Request permission for device orientation (iOS 13+)
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission().then(response => {
+                        if (response === 'granted') {
+                            console.log('Device orientation permission granted');
+                            // Permission granted, add the event listener
+                            window.addEventListener('deviceorientation', orientationHandler);
+                        } else {
+                            console.log('Device orientation permission denied');
+                        }
+                    }).catch(err => {
+                        console.error('Error requesting device orientation permission:', err);
+                    });
+                } else {
+                    // Non-iOS device or older iOS, add listener directly
+                    window.addEventListener('deviceorientation', orientationHandler);
+                }
+                
+                function orientationHandler(event) {
                     const beta = event.beta; // Rotation around x-axis (-180 to 180)
                     const gamma = event.gamma; // Rotation around y-axis (-90 to 90)
                     const alpha = event.alpha; // Rotation around z-axis (0-360, compass)
@@ -2236,7 +2253,7 @@ A watch</textarea>
                     }
                     
                     lastBeta = beta;
-                });
+                }
                 
                 // Listen for tap on screen (for THREE input)
                 const handleTouchStart = (e) => {
