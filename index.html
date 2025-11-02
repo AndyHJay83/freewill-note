@@ -3063,6 +3063,17 @@ Pick up one and give it to me.${spacer}`;
             document.querySelector('#app').style.display = isIOS ? 'flex' : 'none';
             document.querySelector('#android-ui').style.display = isIOS ? 'none' : 'flex';
         });
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
     </script>
 </body>
 </html>
