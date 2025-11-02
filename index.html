@@ -1048,11 +1048,11 @@ A watch</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Leaning Left Text:</label>
-                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="2">Text for leaning left</textarea>
+                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="2">ONE</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Leaning Right Text:</label>
-                    <textarea id="paperclip-text-right" class="settings-input settings-textarea" rows="2">Text for leaning right</textarea>
+                    <textarea id="paperclip-text-right" class="settings-input settings-textarea" rows="2">TWO</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Upright Text:</label>
@@ -2163,20 +2163,24 @@ A watch</textarea>
             // Load saved text from localStorage
             const texts = {
                 'up': localStorage.getItem('paperclip-text-up') || 'Text for face up',
-                'left': localStorage.getItem('paperclip-text-left') || 'Text for leaning left',
-                'right': localStorage.getItem('paperclip-text-right') || 'Text for leaning right',
+                'left': localStorage.getItem('paperclip-text-left') || 'ONE',
+                'right': localStorage.getItem('paperclip-text-right') || 'TWO',
                 'portrait': localStorage.getItem('paperclip-text-portrait') || 'Text for upright',
                 'landscape': localStorage.getItem('paperclip-text-landscape') || 'Text for landscape'
             };
             
             let lastOrientation = null;
             let isFaceDown = false;
+            let textLocked = false; // Track if text has been locked in
             
             // Initial content
             textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
             
             // Orientation handler function
             window.paperclipOrientationHandler = (event) => {
+                // If text is already locked, don't change it
+                if (textLocked) return;
+                
                 const beta = event.beta;  // Front-to-back tilt (-180 to 180)
                 const gamma = event.gamma; // Left-to-right tilt (-90 to 90)
                 
@@ -2211,10 +2215,12 @@ A watch</textarea>
                         orientation = 'landscape';
                     }
                     
-                    // Only update if orientation changed
-                    if (orientation !== lastOrientation) {
+                    // Only update if orientation changed and it's left or right
+                    if (orientation !== lastOrientation && (orientation === 'left' || orientation === 'right')) {
                         lastOrientation = orientation;
                         textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${texts[orientation]}`;
+                        // Lock the text in place
+                        textLocked = true;
                     }
                 }
             };
