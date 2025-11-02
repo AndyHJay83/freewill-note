@@ -1048,15 +1048,27 @@ A watch</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Leaning Left Text:</label>
-                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="2">ONE</textarea>
+                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="6">ONE = BLACK
+EVEN = RED
+---------------
+ODD = SPADE/HEART
+EVEN = CLUB/DIAMOND</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Leaning Right Text:</label>
-                    <textarea id="paperclip-text-right" class="settings-input settings-textarea" rows="2">TWO</textarea>
+                    <textarea id="paperclip-text-right" class="settings-input settings-textarea" rows="6">ODD = RED
+EVEN = BLACK
+----------------
+ODD = CLUB/DIAMOND
+EVEN = SPADE/HEART</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Upright Text:</label>
-                    <textarea id="paperclip-text-portrait" class="settings-input settings-textarea" rows="2">Text for upright</textarea>
+                    <textarea id="paperclip-text-portrait" class="settings-input settings-textarea" rows="6">ODD = RED
+EVEN = BLACK
+----------------
+ODD = CLUB/DIAMOND
+EVEN = SPADE/HEART</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Landscape Text:</label>
@@ -2163,9 +2175,9 @@ A watch</textarea>
             // Load saved text from localStorage
             const texts = {
                 'up': localStorage.getItem('paperclip-text-up') || 'Text for face up',
-                'left': localStorage.getItem('paperclip-text-left') || 'ONE',
-                'right': localStorage.getItem('paperclip-text-right') || 'TWO',
-                'portrait': localStorage.getItem('paperclip-text-portrait') || 'Text for upright',
+                'left': localStorage.getItem('paperclip-text-left') || 'ONE = BLACK\nEVEN = RED\n---------------\nODD = SPADE/HEART\nEVEN = CLUB/DIAMOND',
+                'right': localStorage.getItem('paperclip-text-right') || 'ODD = RED\nEVEN = BLACK\n----------------\nODD = CLUB/DIAMOND\nEVEN = SPADE/HEART',
+                'portrait': localStorage.getItem('paperclip-text-portrait') || 'ODD = RED\nEVEN = BLACK\n----------------\nODD = CLUB/DIAMOND\nEVEN = SPADE/HEART',
                 'landscape': localStorage.getItem('paperclip-text-landscape') || 'Text for landscape'
             };
             
@@ -2218,7 +2230,8 @@ A watch</textarea>
                     // Only update if orientation changed and it's left or right
                     if (orientation !== lastOrientation && (orientation === 'left' || orientation === 'right')) {
                         lastOrientation = orientation;
-                        textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${texts[orientation]}`;
+                        const formattedText = texts[orientation].replace(/\n/g, '<br>');
+                        textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${formattedText}`;
                         // Lock the text in place
                         textLocked = true;
                     }
