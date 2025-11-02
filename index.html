@@ -1041,13 +1041,10 @@ A watch</textarea>
         <div class="effect-settings" id="other-settings">
             <div class="settings-group">
                 <div class="settings-label">Orientation Texts</div>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Different text appears based on phone orientation. Face down clears all text.</p>
                 <div class="setting-item">
                     <label>Face Up Text:</label>
                     <textarea id="paperclip-text-up" class="settings-input settings-textarea" rows="2">Text for face up</textarea>
-                </div>
-                <div class="setting-item">
-                    <label>Face Down Text:</label>
-                    <textarea id="paperclip-text-down" class="settings-input settings-textarea" rows="2">Text for face down</textarea>
                 </div>
                 <div class="setting-item">
                     <label>Leaning Left Text:</label>
@@ -2166,7 +2163,6 @@ A watch</textarea>
             // Load saved text from localStorage
             const texts = {
                 'up': localStorage.getItem('paperclip-text-up') || 'Text for face up',
-                'down': localStorage.getItem('paperclip-text-down') || 'Text for face down',
                 'left': localStorage.getItem('paperclip-text-left') || 'Text for leaning left',
                 'right': localStorage.getItem('paperclip-text-right') || 'Text for leaning right',
                 'portrait': localStorage.getItem('paperclip-text-portrait') || 'Text for upright',
@@ -2341,14 +2337,12 @@ A watch</textarea>
         // Save Paperclip settings
         document.getElementById('save-paperclip').addEventListener('click', () => {
             const textUp = document.getElementById('paperclip-text-up').value;
-            const textDown = document.getElementById('paperclip-text-down').value;
             const textLeft = document.getElementById('paperclip-text-left').value;
             const textRight = document.getElementById('paperclip-text-right').value;
             const textPortrait = document.getElementById('paperclip-text-portrait').value;
             const textLandscape = document.getElementById('paperclip-text-landscape').value;
 
             localStorage.setItem('paperclip-text-up', textUp);
-            localStorage.setItem('paperclip-text-down', textDown);
             localStorage.setItem('paperclip-text-left', textLeft);
             localStorage.setItem('paperclip-text-right', textRight);
             localStorage.setItem('paperclip-text-portrait', textPortrait);
