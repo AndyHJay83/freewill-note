@@ -2198,10 +2198,10 @@ A watch</textarea>
                     // Determine orientation based on tilt angles
                     let orientation = 'portrait';
                     
-                    // Heavy left/right tilt takes precedence
-                    if (gamma < -45) {
+                    // Heavy left/right tilt takes precedence (less sensitive)
+                    if (gamma < -60) {
                         orientation = 'left';
-                    } else if (gamma > 45) {
+                    } else if (gamma > 60) {
                         orientation = 'right';
                     }
                     // Then check for up/down tilt
