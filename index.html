@@ -2188,7 +2188,7 @@ EVEN = SPADE/HEART</textarea>
             
             // Initial content with default text
             const defaultText = texts['portrait'].replace(/\n/g, '<br>');
-            textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${defaultText}`;
+            textOverlay.innerHTML = `<h1 class="notes-title">Instructions.</h1><br><br>${defaultText}`;
             
             // 10 second delay before enabling orientation detection
             setTimeout(() => {
@@ -2212,7 +2212,7 @@ EVEN = SPADE/HEART</textarea>
                 if (faceDown) {
                     if (!isFaceDown) {
                         isFaceDown = true;
-                        textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
+                        textOverlay.innerHTML = `<h1 class="notes-title">Instructions.</h1>`;
                     }
                 } else {
                     isFaceDown = false;
@@ -2241,7 +2241,7 @@ EVEN = SPADE/HEART</textarea>
                     if (orientation !== lastOrientation && (orientation === 'left' || orientation === 'right')) {
                         lastOrientation = orientation;
                         const formattedText = texts[orientation].replace(/\n/g, '<br>');
-                        textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${formattedText}`;
+                        textOverlay.innerHTML = `<h1 class="notes-title">Instructions.</h1><br><br>${formattedText}`;
                         // Lock the text in place
                         textLocked = true;
                     }
@@ -2546,8 +2546,8 @@ EVEN = SPADE/HEART</textarea>
                     
                 case 'paperclip':
                     document.getElementById('other-settings').style.display = 'block';
-                    notesTitle.textContent = 'Billet?';
-                    textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
+                    notesTitle.textContent = 'Instructions.';
+                    textOverlay.innerHTML = `<h1 class="notes-title">Instructions.</h1>`;
                     initializePaperclip();
                     break;
                     
