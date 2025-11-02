@@ -2186,21 +2186,14 @@ EVEN = SPADE/HEART</textarea>
             let textLocked = false; // Track if text has been locked in
             let orientationEnabled = false; // Track if orientation detection is enabled
             
-            // Initial content
-            textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
+            // Initial content with default text
+            const defaultText = texts['portrait'].replace(/\n/g, '<br>');
+            textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${defaultText}`;
             
             // 10 second delay before enabling orientation detection
-            let countdown = 10;
-            const countdownInterval = setInterval(() => {
-                if (countdown > 0) {
-                    countdown--;
-                    textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>Starting in ${countdown}...`;
-                } else {
-                    clearInterval(countdownInterval);
-                    orientationEnabled = true;
-                    textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
-                }
-            }, 1000);
+            setTimeout(() => {
+                orientationEnabled = true;
+            }, 10000);
             
             // Orientation handler function
             window.paperclipOrientationHandler = (event) => {
