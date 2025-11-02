@@ -312,6 +312,17 @@
             text-transform: uppercase;
         }
 
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            font-size: 15px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
         .settings-input {
             width: 100%;
             background: #1C1C1E;
@@ -1026,12 +1037,36 @@ A watch</textarea>
             <button class="save-settings" id="save-freewill">Save Changes</button>
         </div>
 
-        <!-- Other Effect Settings (Coming Soon) -->
+        <!-- Paperclip Effect Settings -->
         <div class="effect-settings" id="other-settings">
             <div class="settings-group">
-                <div class="settings-label">Updates Coming Soon</div>
-                <p style="color: #666; margin-top: 10px;">New features and settings will be available in a future update.</p>
+                <div class="settings-label">Orientation Texts</div>
+                <div class="setting-item">
+                    <label>Face Up Text:</label>
+                    <textarea id="paperclip-text-up" class="settings-input settings-textarea" rows="2">Text for face up</textarea>
+                </div>
+                <div class="setting-item">
+                    <label>Face Down Text:</label>
+                    <textarea id="paperclip-text-down" class="settings-input settings-textarea" rows="2">Text for face down</textarea>
+                </div>
+                <div class="setting-item">
+                    <label>Leaning Left Text:</label>
+                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="2">Text for leaning left</textarea>
+                </div>
+                <div class="setting-item">
+                    <label>Leaning Right Text:</label>
+                    <textarea id="paperclip-text-right" class="settings-input settings-textarea" rows="2">Text for leaning right</textarea>
+                </div>
+                <div class="setting-item">
+                    <label>Upright Text:</label>
+                    <textarea id="paperclip-text-portrait" class="settings-input settings-textarea" rows="2">Text for upright</textarea>
+                </div>
+                <div class="setting-item">
+                    <label>Landscape Text:</label>
+                    <textarea id="paperclip-text-landscape" class="settings-input settings-textarea" rows="2">Text for landscape</textarea>
+                </div>
             </div>
+            <button class="save-settings" id="save-paperclip">Save Changes</button>
         </div>
 
         <!-- Drawing Effect Settings -->
@@ -2119,6 +2154,90 @@ A watch</textarea>
         // Initialize with Free Will effect
         switchToEffect('new');
 
+        // Paperclip functionality with accelerometer
+        function initializePaperclip() {
+            const textOverlay = document.getElementById('text-overlay');
+            
+            // Remove old event listeners if they exist
+            if (window.paperclipOrientationHandler) {
+                window.removeEventListener('deviceorientation', window.paperclipOrientationHandler);
+            }
+            
+            // Load saved text from localStorage
+            const texts = {
+                'up': localStorage.getItem('paperclip-text-up') || 'Text for face up',
+                'down': localStorage.getItem('paperclip-text-down') || 'Text for face down',
+                'left': localStorage.getItem('paperclip-text-left') || 'Text for leaning left',
+                'right': localStorage.getItem('paperclip-text-right') || 'Text for leaning right',
+                'portrait': localStorage.getItem('paperclip-text-portrait') || 'Text for upright',
+                'landscape': localStorage.getItem('paperclip-text-landscape') || 'Text for landscape'
+            };
+            
+            let lastOrientation = null;
+            let isFaceDown = false;
+            
+            // Initial content
+            textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
+            
+            // Orientation handler function
+            window.paperclipOrientationHandler = (event) => {
+                const beta = event.beta;  // Front-to-back tilt (-180 to 180)
+                const gamma = event.gamma; // Left-to-right tilt (-90 to 90)
+                
+                // Check if face down (beta > 135 or beta < -135)
+                const faceDown = Math.abs(beta) > 135;
+                
+                if (faceDown) {
+                    if (!isFaceDown) {
+                        isFaceDown = true;
+                        textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
+                    }
+                } else {
+                    isFaceDown = false;
+                    
+                    // Determine orientation based on tilt angles
+                    let orientation = 'portrait';
+                    
+                    // Heavy left/right tilt takes precedence
+                    if (gamma < -45) {
+                        orientation = 'left';
+                    } else if (gamma > 45) {
+                        orientation = 'right';
+                    }
+                    // Then check for up/down tilt
+                    else if (beta < -45) {
+                        orientation = 'up';
+                    } else if (beta > 45) {
+                        orientation = 'down';
+                    }
+                    // Finally check landscape vs portrait
+                    else if (Math.abs(gamma) > 15) {
+                        orientation = 'landscape';
+                    }
+                    
+                    // Only update if orientation changed
+                    if (orientation !== lastOrientation) {
+                        lastOrientation = orientation;
+                        textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1><br><br>${texts[orientation]}`;
+                    }
+                }
+            };
+            
+            // Request permission for iOS 13+
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', window.paperclipOrientationHandler);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Non-iOS 13+ devices
+                window.addEventListener('deviceorientation', window.paperclipOrientationHandler);
+            }
+        }
+
         // Free Will functionality
         function initializeFreeWill() {
             const textOverlay = document.getElementById('text-overlay');
@@ -2218,6 +2337,30 @@ A watch</textarea>
             textOverlay.addEventListener('touchmove', window.freewillTouchMove);
             textOverlay.addEventListener('scroll', window.freewillScroll);
         }
+
+        // Save Paperclip settings
+        document.getElementById('save-paperclip').addEventListener('click', () => {
+            const textUp = document.getElementById('paperclip-text-up').value;
+            const textDown = document.getElementById('paperclip-text-down').value;
+            const textLeft = document.getElementById('paperclip-text-left').value;
+            const textRight = document.getElementById('paperclip-text-right').value;
+            const textPortrait = document.getElementById('paperclip-text-portrait').value;
+            const textLandscape = document.getElementById('paperclip-text-landscape').value;
+
+            localStorage.setItem('paperclip-text-up', textUp);
+            localStorage.setItem('paperclip-text-down', textDown);
+            localStorage.setItem('paperclip-text-left', textLeft);
+            localStorage.setItem('paperclip-text-right', textRight);
+            localStorage.setItem('paperclip-text-portrait', textPortrait);
+            localStorage.setItem('paperclip-text-landscape', textLandscape);
+
+            // Show feedback
+            const saveButton = document.getElementById('save-paperclip');
+            saveButton.textContent = 'Saved!';
+            setTimeout(() => {
+                saveButton.textContent = 'Save Changes';
+            }, 2000);
+        });
 
         // Save Free Will settings
         document.getElementById('save-freewill').addEventListener('click', () => {
@@ -2382,6 +2525,7 @@ A watch</textarea>
                     document.getElementById('other-settings').style.display = 'block';
                     notesTitle.textContent = 'Billet?';
                     textOverlay.innerHTML = `<h1 class="notes-title">Billet?</h1>`;
+                    initializePaperclip();
                     break;
                     
                 case 'pen':
