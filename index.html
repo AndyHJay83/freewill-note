@@ -819,6 +819,11 @@
             opacity: 0.87;
         }
 
+        body.android-mode .footer-icon.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
         body.android-mode .back-arrow {
             width: 24px;
             height: 24px;
@@ -949,8 +954,8 @@
 
         <div class="footer">
             <div class="footer-left">
-                <img src="android/add.svg" alt="Add" class="footer-icon">
-                <img src="android/palette.svg" alt="Color" class="footer-icon">
+                <img src="android/add.svg" alt="Add" class="footer-icon disabled">
+                <img src="android/palette.svg" alt="Color" class="footer-icon disabled">
             </div>
             <div class="footer-center">Edited 15:41</div>
             <img src="android/more.svg" alt="More" class="footer-icon">
