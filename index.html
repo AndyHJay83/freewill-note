@@ -1033,10 +1033,6 @@ A wallet
 A watch</textarea>
             </div>
             <div class="settings-group">
-                <div class="settings-label">Columns</div>
-                <input type="number" class="settings-input" id="freewill-columns" value="3" min="2" max="10">
-            </div>
-            <div class="settings-group">
                 <div class="settings-label">First Message</div>
                 <textarea class="settings-input settings-textarea" id="freewill-first">Great. Now pick up another item and put it in your pocket.</textarea>
             </div>
@@ -1057,12 +1053,8 @@ A watch</textarea>
                 <div class="settings-label">Orientation Texts</div>
                 <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Text locks on first left or right tilt. Face down clears all text.</p>
                 <div class="setting-item">
-                    <label>Face Up Text:</label>
-                    <textarea id="paperclip-text-up" class="settings-input settings-textarea" rows="2">Text for face up</textarea>
-                </div>
-                <div class="setting-item">
                     <label>Leaning Left Text:</label>
-                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="6">ONE = BLACK
+                    <textarea id="paperclip-text-left" class="settings-input settings-textarea" rows="6">ODD = BLACK
 EVEN = RED
 ---------------
 ODD = SPADE/HEART
@@ -1083,10 +1075,6 @@ EVEN = BLACK
 ----------------
 ODD = CLUB/DIAMOND
 EVEN = SPADE/HEART</textarea>
-                </div>
-                <div class="setting-item">
-                    <label>Landscape Text:</label>
-                    <textarea id="paperclip-text-landscape" class="settings-input settings-textarea" rows="2">Text for landscape</textarea>
                 </div>
             </div>
             <button class="save-settings" id="save-paperclip">Save Changes</button>
@@ -2049,11 +2037,6 @@ EVEN = SPADE/HEART</textarea>
         
         // Load Free Will settings into the form
         function loadFreeWillSettings() {
-            const savedColumns = localStorage.getItem('freewill-columns') || '3';
-            
-            // Set the columns input
-            document.getElementById('freewill-columns').value = savedColumns;
-            
             // Load app settings
             const savedTheme = localStorage.getItem('theme');
             const savedPlatform = localStorage.getItem('platform');
@@ -2188,11 +2171,9 @@ EVEN = SPADE/HEART</textarea>
             
             // Load saved text from localStorage
             const texts = {
-                'up': localStorage.getItem('paperclip-text-up') || 'Text for face up',
                 'left': localStorage.getItem('paperclip-text-left') || 'ODD = BLACK\nEVEN = RED\n---------------\nODD = SPADE/HEART\nEVEN = CLUB/DIAMOND',
                 'right': localStorage.getItem('paperclip-text-right') || 'ODD = RED\nEVEN = BLACK\n----------------\nODD = CLUB/DIAMOND\nEVEN = SPADE/HEART',
-                'portrait': localStorage.getItem('paperclip-text-portrait') || 'ODD = RED\nEVEN = BLACK\n----------------\nODD = CLUB/DIAMOND\nEVEN = SPADE/HEART',
-                'landscape': localStorage.getItem('paperclip-text-landscape') || 'Text for landscape'
+                'portrait': localStorage.getItem('paperclip-text-portrait') || 'ODD = RED\nEVEN = BLACK\n----------------\nODD = CLUB/DIAMOND\nEVEN = SPADE/HEART'
             };
             
             let lastOrientation = null;
@@ -2301,8 +2282,8 @@ EVEN = SPADE/HEART</textarea>
             const secondMessage = localStorage.getItem('freewill-second') || 'Perfect. And the last item, keep in your hands.';
             const finalTemplate = localStorage.getItem('freewill-final') || 'If I have influenced you correctly, I should be holding the [FIRST], you should be holding the [LAST], and the [SECOND] should be in your pocket!';
             
-            // Load saved columns
-            const columns = parseInt(localStorage.getItem('freewill-columns')) || 3;
+            // Use a fixed 3-column layout for touch input regions
+            const columns = 3;
 
             // Initial content with spacing
             const spacer = '<br>'.repeat(100);
@@ -2379,17 +2360,13 @@ EVEN = SPADE/HEART</textarea>
 
         // Save Paperclip settings
         document.getElementById('save-paperclip').addEventListener('click', () => {
-            const textUp = document.getElementById('paperclip-text-up').value;
             const textLeft = document.getElementById('paperclip-text-left').value;
             const textRight = document.getElementById('paperclip-text-right').value;
             const textPortrait = document.getElementById('paperclip-text-portrait').value;
-            const textLandscape = document.getElementById('paperclip-text-landscape').value;
 
-            localStorage.setItem('paperclip-text-up', textUp);
             localStorage.setItem('paperclip-text-left', textLeft);
             localStorage.setItem('paperclip-text-right', textRight);
             localStorage.setItem('paperclip-text-portrait', textPortrait);
-            localStorage.setItem('paperclip-text-landscape', textLandscape);
 
             // Show feedback
             const saveButton = document.getElementById('save-paperclip');
@@ -2405,13 +2382,11 @@ EVEN = SPADE/HEART</textarea>
             const firstMessage = document.getElementById('freewill-first').value;
             const secondMessage = document.getElementById('freewill-second').value;
             const finalTemplate = document.getElementById('freewill-final').value;
-            const columns = parseInt(document.getElementById('freewill-columns').value);
 
             localStorage.setItem('freewill-items', JSON.stringify(items));
             localStorage.setItem('freewill-first', firstMessage);
             localStorage.setItem('freewill-second', secondMessage);
             localStorage.setItem('freewill-final', finalTemplate);
-            localStorage.setItem('freewill-columns', columns);
 
             // Show feedback
             const saveButton = document.getElementById('save-freewill');
